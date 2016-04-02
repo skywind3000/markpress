@@ -290,13 +290,13 @@ class wordpress (object):
 			self.warn('missing title in %s'%(name))
 			return -3
 		opt = {}
-		opt['title'] = post.title
+		opt['title'] = post.title.encode('utf-8')
 		if post.id:
 			opt['title'] = post.id
 		if post.categories:
-			opt['categories'] = ','.join(post.categories)
+			opt['categories'] = (','.join(post.categories)).encode('utf-8')
 		if post.tags:
-			opt['tags'] = ','.join(post.tags)
+			opt['tags'] = (','.join(post.tags)).encode('utf-8')
 		opt['command'] = 'post'
 		self.info('writing: %s'%post.filename['html'])
 		fp = open(post.filename['html'], 'wb')
