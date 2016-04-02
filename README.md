@@ -62,6 +62,8 @@ $ python /path-to-markpress/markpress.py post.1.md
 所有 images下面的图片在 markdown 中需要用："../images/abc.jpg" 来引用，这样转换到 data
 下面的 html 也可以保持正确引用，同时上传的时候会自动判断图片是否有改动来判断是否需要上传新图片。
 
+最后，WordPress 的 `more` 标志在markdown中新一行里写上 `<!--more-->` 就行。 
+
 如此，你可以自由的用你喜爱 markdown 编辑器来离线写 WordPress 了，并且配置上快捷键一键发布，
 本篇博文即使用 MarkPress 写成，十分方便。
 
