@@ -184,6 +184,7 @@ class configure (object):
 		opt.verbose = 0
 		opt.command = None 
 		opt.filename = None
+		opt.status = 'published'
 		import xmlrpclib
 		for n in options:
 			opt.__dict__[n] = options[n]
@@ -211,6 +212,7 @@ class configure (object):
 				blog.status = opt.status
 			if blog.status is None:
 				blog.status = 'published'
+			blog.status = 'published'
 			blog.doctype = blog.parameters.get('doctype', blog.doctype)
 			if opt.doctype is not None:
 				blog.doctype = options.doctype
@@ -303,7 +305,7 @@ class wordpress (object):
 		fp.write(post.html.encode('utf-8'))
 		fp.close()
 		opt['filename'] = post.filename['html']
-		opt['status'] = post.status
+		opt['status'] = 'published'
 		opt['force'] = force
 		self.config.wordpress(opt)
 		self.info('')
