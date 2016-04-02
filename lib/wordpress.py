@@ -28,7 +28,7 @@ class configure (object):
 
 	def __init__ (self, home = '.'):
 		self._dirhome = os.path.abspath(home)
-		self._ininame = self.path('etc/wordpress.ini')
+		self._ininame = self.path('wordpress.ini')
 		self._inipath = ''
 		self._config = {}
 		self._posts = []
