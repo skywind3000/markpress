@@ -64,8 +64,8 @@ $ python /path-to-markpress/markpress.py post.1.md
 
 最后，WordPress 的 `more` 标志在markdown中新一行里写上 `<!--more-->` 就行。 
 
-如此，你可以自由的用你喜爱 markdown 编辑器来离线写 WordPress 了，并且配置上快捷键一键发布，
-本篇博文即使用 MarkPress 写成，十分方便。
+如果需要显示代码段的语法高亮，那么WordPress端需要安装：Auto SyntaxHighlighter。
+如此，你可以自由的用你喜爱 markdown 编辑器来离线写 WordPress 了，并且配置上快捷键一键发布。
 
 
 
