@@ -33,7 +33,7 @@ username=????
 password=????
 ```
 
-然后就可以再 doc 下写一篇名为：doc/post.1.md 的文章了：
+然后就可以再 doc 下写一篇名为：doc/post.1.md 的文章了（必须使用 utf-8编码）：
 
 ```
 ---
