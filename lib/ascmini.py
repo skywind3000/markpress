@@ -407,31 +407,6 @@ class PosixKit (object):
                 text = content.decode('utf-8', 'ignore')
         return text
 
-    # find root
-    def find_root (self, path, markers = None, fallback = False):
-        if markers is None:
-            markers = ('.git', '.svn', '.hg', '.project', '.root')
-        if path is None:
-            path = os.getcwd()
-        path = os.path.abspath(path)
-        base = path
-        while True:
-            parent = os.path.normpath(os.path.join(base, '..'))
-            if parent == base:
-                break
-            for marker in markers:
-                test = os.path.join(base, marker)
-                if os.path.exists(test):
-                    return base
-            base = parent
-        if fallback:
-            return path
-        return None
-
-    # project root
-    def project_root (self, path, markers = None):
-        return self.find_root(path, markers, True)
-
 
 #----------------------------------------------------------------------
 # instance
@@ -1064,6 +1039,31 @@ class ShellUtils (object):
         zfp = None
         return 0
 
+    # find root
+    def find_root (self, path, markers = None, fallback = False):
+        if markers is None:
+            markers = ('.git', '.svn', '.hg', '.project', '.root')
+        if path is None:
+            path = os.getcwd()
+        path = os.path.abspath(path)
+        base = path
+        while True:
+            parent = os.path.normpath(os.path.join(base, '..'))
+            if parent == base:
+                break
+            for marker in markers:
+                test = os.path.join(base, marker)
+                if os.path.exists(test):
+                    return base
+            base = parent
+        if fallback:
+            return path
+        return None
+
+    # project root
+    def project_root (self, path, markers = None):
+        return self.find_root(path, markers, True)
+
 
 utils = ShellUtils()
 
@@ -1503,8 +1503,8 @@ if __name__ == '__main__':
         # reg.save()
         return 0
     def test6():
-        print(posix.find_root('.'))
-        print(posix.project_root('/'))
+        print(utils.find_root(__file__))
+        print(utils.project_root('/'))
         return 0
     test6()
 
