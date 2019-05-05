@@ -113,8 +113,20 @@ def call(args, input_data = None, combine = False):
                 parameters.append(n)
     cmd = ' '.join(parameters)
     import subprocess
+    bufsize = 0x100000
+    if input_data is not None:
+        if not isinstance(input_data, bytes):
+            if sys.stdin and sys.stdin.encoding:
+                input_data = input_data.encode(sys.stdin.encoding, 'ignore')
+            elif sys.stdout and sys.stdout.encoding:
+                input_data = input_data.encode(sys.stdout.encoding, 'ignore')
+            else:
+                input_data = input_data.encode('utf-8', 'ignore')
+        size = len(input_data) * 2 + 0x10000
+        if size > bufsize:
+            bufsize = size
     if 'Popen' in subprocess.__dict__:
-        p = subprocess.Popen(args, shell = False,
+        p = subprocess.Popen(args, shell = False, bufsize = bufsize,
             stdin = subprocess.PIPE, stdout = subprocess.PIPE,
             stderr = combine and subprocess.STDOUT or subprocess.PIPE)
         stdin, stdout, stderr = p.stdin, p.stdout, p.stderr
@@ -127,13 +139,6 @@ def call(args, input_data = None, combine = False):
             stdin, stdout = os.popen4(cmd)
             stderr = None
     if input_data is not None:
-        if not isinstance(input_data, bytes):
-            if sys.stdin and sys.stdin.encoding:
-                input_data = input_data.encode(sys.stdin.encoding, 'ignore')
-            elif sys.stdout and sys.stdout.encoding:
-                input_data = input_data.encode(sys.stdout.encoding, 'ignore')
-            else:
-                input_data = input_data.encode('utf-8', 'ignore')
         stdin.write(input_data)
         stdin.flush()
     stdin.close()

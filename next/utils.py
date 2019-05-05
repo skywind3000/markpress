@@ -22,6 +22,8 @@ import ascmini
 MD_EXTRAS = ['metadata', 'fenced-code-blocks', 'cuddled-list', 
     'tables', 'footnotes', 'highlightjs-lang']
 
+PANDOC_FLAGS = []
+
 
 #----------------------------------------------------------------------
 # MarkdownDoc 
@@ -115,7 +117,7 @@ class MarkdownDoc (object):
             args = ['pandoc', '-f', 'markdown', '-t', 'html']
             code, stdout, stderr = ascmini.call(args, input)
             if code != 0:
-                raise SystemError("pandoc exits code is %d: %s" % (
+                raise SystemError("pandoc exits with code %d: %s" % (
                     code, stderr.decode('utf-8', 'ignore')))
             return stdout.decode('utf-8', 'ignore')
         return self._convert_markdown2(self._content)
@@ -138,6 +140,6 @@ if __name__ == '__main__':
         print('---')
         print(text.decode('gbk'))
         return 0
-    test2()
+    test1()
 
 
