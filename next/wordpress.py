@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #======================================================================
 #
-# wordpress2.py - 
+# wordpress.py - 
 #
 # Created by skywind on 2019/05/04
 # Last Modified: 2019/05/04 23:24:18

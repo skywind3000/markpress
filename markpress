@@ -1,11 +1,5 @@
-#! /usr/bin/python
-import sys
-import os
+#! /bin/sh
 
-PATH = os.path.abspath(os.path.dirname(__file__))
-sys.path.append(os.path.join(PATH, 'lib'))
-
-import wordpress
-
-wordpress.main()
+MY_PATH="`dirname \"$0\"`"
+python "${MY_PATH}/markpress.py" "$@"
 

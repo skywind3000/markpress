@@ -897,6 +897,43 @@ class WebKit (object):
         value = text[p1 + len(starts):p2]
         return value, p2 + len(ends)
 
+    def replace_range (self, text, start, size, newtext):
+        head = text[:start]
+        tail = text[start + size:]
+        return head + newtext + tail
+
+    def url_parse (self, url):
+        if sys.version_info[0] < 3:
+            import urlparse
+            return urlparse.urlparse(url)
+        import urllib.parse
+        return urllib.parse.urlparse(url)
+
+    def url_unquote (self, text, plus = False):
+        if sys.version_info[0] < 3:
+            import urlparse
+            if plus:
+                text = text.replace('+', ' ')
+            return urlparse.unquote(text)
+        import urllib.parse
+        if plus:
+            return urllib.parse.unquote_plus(text)
+        return urllib.parse.unquote(text)
+        
+    def url_parse_qs (self, text, keep_blank = 0):
+        if sys.version_info[0] < 3:
+            import urlparse
+            return urlparse.parse_qs(text, keep_blank)
+        import urllib.parse
+        return urllib.parse.parse_qs(text, keep_blank)
+
+    def url_parse_qsl (self, text, keep_blank = 0):
+        if sys.version_info[0] < 3:
+            import urlparse
+            return urlparse.parse_qsl(text, keep_blank)
+        import urllib.parse
+        return urllib.parse.parse_qsl(text, keep_blank)
+
 
 
 #----------------------------------------------------------------------
@@ -1569,6 +1606,14 @@ if __name__ == '__main__':
         utils.print_binary('Hello, World !! Ni Hao !!', True)
         print(utils.getopt(['-t', '--name=123', '--out', '-', 'abc', 'def', 'ghi']))
         print(utils.getopt([]))
+        print(web.replace_range('Hello, World', 4, 2, 'fuck'))
+        url = 'socks5://test:pass@localhost/tt?123=45'
+        res = web.url_parse(url)
+        print(res)
+        print(res.hostname)
+        print(res.port)
+        print(res.username)
+        print(res.password)
         return 0
     test6()
 
