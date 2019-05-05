@@ -39,33 +39,49 @@ class WordPress (object):
             url = url + '/'
         return url + 'xmlrpc.php'
 
-    def new_post (self):
-        post = wordpress_xmlrpc.WordPressPost()
-        post.content = ''
-        post.post_status = 'draft'
-        action = wordpress_xmlrpc.methods.posts.NewPost(post)
-        post.id = self._client.call(action)
-        return post.id
+    # post['id']: integer uid of the post
+    # post['content']: string content 
+    # post['title']: string title
+    # post['status']: string of draft, private, publish
+    # post['category']: list
+    # post['tag']: list
+    def __convert_post (self, post):
+        newpost = wordpress_xmlrpc.WordPressPost()
+        if post:
+            if 'id' in post:
+                newpost.id = post['id']
+            if 'title' in post:
+                newpost.title = post['title']
+            newpost.content = post.get('content', '')
+            newpost.post_status = 'draft'
+            if post.get('status'):
+                newpost.post_status = post['status']
+            cats = post.get('category')
+            tags = post.get('tag')
+            if cats or tags:
+                newpost.terms_names = {}
+                if cats:
+                    newpost.terms_names['category'] = cats
+                if tags:
+                    newpost.terms_names['post_tag'] = tags
+        else:
+            newpost.post_status = 'draft'
+            newpost.content = ''
+        return newpost
+
+    def new_post (self, post = None):
+        newpost = self.__convert_post(post)
+        action = wordpress_xmlrpc.methods.posts.NewPost(newpost)
+        pid = self._client.call(action)
+        return pid
 
     def edit_post (self, post):
         if 'id' not in post:
             raise ValueError('missing id in post')
-        newpost = wordpress_xmlrpc.WordPressPost()
-        newpost.id = post['id']
-        newpost.title = post['title']
-        newpost.content = post['content']
-        newpost.post_status = 'draft'
-        if post.get('status'):
-            # status: draft, private, publish
-            newpost.post_status = post['status']
-        newpost.terms_names = {}
-        cats = post.get('category')
-        if cats:
-            newpost.term_names['category'] = cats
-        tags = post.get('tag')
-        if tags:
-            newpost.term_names['post_tag'] = tags
-        return True
+        newpost = self.__convert_post(post)
+        pid = post['id']
+        action = wordpress_xmlrpc.methods.posts.EditPost(pid, newpost)
+        return self._client.call(action)
 
 
 #----------------------------------------------------------------------
