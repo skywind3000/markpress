@@ -56,8 +56,18 @@ class MarkdownDoc (object):
         return parts
 
     def __parse (self):
+        self._uuid = self._meta.get('uuid', None)
+        self._title = self._meta.get('title', None)
         self._cats = self.__parse_list(self._meta.get('categories'))
         self._tags = self.__parse_list(self._meta.get('tags'))
+        if not self._uuid:
+            self._uuid = None
+        if not self._title:
+            self._title = None
+        if not self._cats:
+            self._cats = None
+        if not self._tags:
+            self._tags = None
         return True
 
 
