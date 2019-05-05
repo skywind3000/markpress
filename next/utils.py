@@ -177,12 +177,18 @@ if __name__ == '__main__':
         print(doc._meta)
         print(doc._cats)
         print(doc._tags)
-        print(doc.convert('auto'))
+        print(doc.convert(''))
         return 0
     def test2():
         text = ascmini.execute(['cmd', '/c', 'dir'], capture = True)
         print('---')
         print(text.decode('gbk'))
+        return 0
+    def test3():
+        import markdown2
+        extras = MD_EXTRAS
+        html = markdown2.markdown('\n`````text\n```cpp\ntext\n```\n`````\n', extras = extras)
+        print(html)
         return 0
     test1()
 
