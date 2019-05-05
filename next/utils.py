@@ -145,12 +145,15 @@ class MarkdownDoc (object):
         html = markdown.markdown(content, extensions = PYMD_EXTENSION)
         return html
 
+    # engine: native, markdown, pandoc, auto, config
     def convert (self, engine):
         if engine is None:
             engine = ''
         engine = engine.strip().lower()
-        if engine in ('markdown2', 'default', '0', '', 0):
+        if engine in ('markdown2', 'default', '0', '', 'native', 0):
             engine = ''
+        if engine == 'config':
+            engine = config.options['engine']
         if engine == 'auto':
             try:
                 import markdown
