@@ -13,7 +13,6 @@ import sys
 import os
 import time
 import config
-import markdown2
 import ascmini
 
 
@@ -32,9 +31,8 @@ class MarkdownDoc (object):
     def __init__ (self, filename):
         self._filename = os.path.abspath(filename)
         self._content = ascmini.posix.load_file_text(filename)
-        self._markdown = markdown2.Markdown(extras = MD_EXTRAS)
-        self._html = self._markdown.convert(self._content)
-        self._meta = self._markdown.metadata
+        self._html = None
+        self._meta = {}
         self._cats = []
         self._tags = []
         self._uuid = None
@@ -55,7 +53,37 @@ class MarkdownDoc (object):
                 parts.append(part)
         return parts
 
+    def __parse_meta (self, content):
+        state = 0
+        meta = {}
+        size = len(content)
+        pos = 0
+        while pos < size:
+            end = content.find('\n', pos)
+            if end < 0:
+                end = size
+            line = content[pos:end]
+            pos = end + 1
+            line = line.rstrip('\r\n\t ')
+            if not line:
+                continue
+            if state == 0:
+                if line == ('-' * len(line)) and len(line) >= 3:
+                    state = 1
+            elif state == 1:
+                if line == ('-' * len(line)) and len(line) >= 3:
+                    state = 2
+                elif ':' in line:
+                    key, _, value = line.partition(':')
+                    key = key.strip()
+                    if key:
+                        meta[key] = value.strip()
+            else:
+                break
+        return meta
+
     def __parse (self):
+        self._meta = self.__parse_meta(self._content)
         self._uuid = self._meta.get('uuid', None)
         self._title = self._meta.get('title', None)
         self._cats = self.__parse_list(self._meta.get('categories'))
@@ -70,6 +98,16 @@ class MarkdownDoc (object):
             self._tags = None
         return True
 
+    def _convert_markdown2 (self, content):
+        import markdown2
+        md = markdown2.Markdown(extras = MD_EXTRAS)
+        html = md.convert(content)
+        return html
+
+    def convert (self):
+        return self._convert_markdown2(self._content)
+
+
 
 #----------------------------------------------------------------------
 # testing suit 
@@ -80,8 +118,7 @@ if __name__ == '__main__':
         print(doc._meta)
         print(doc._cats)
         print(doc._tags)
-        print(doc._html)
-        print('\uff0c')
+        print(doc.convert())
         return 0
     test1()
 
