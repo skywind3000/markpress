@@ -40,6 +40,7 @@ def select(section):
     options['tabsize'] = cfg.option(section, 'tabsize', 4)
     options['blog'] = cfg.option(section, 'blog', '').strip()
     options['engine'] = cfg.option(section, 'engine', '').strip()
+    options['proxy'] = cfg.option(section, 'proxy', '').strip()
     if not options['url']:
         raise ValueError('config error: empty url')
     if not options['user']:
@@ -74,7 +75,7 @@ def proxy(url):
     import socket
     if '_socket_' not in socket.__dict__:
         socket._socket_ = socket.socket
-    if not url:
+    if (not url) or (url in ('raw', 'tcp', '', 'native')):
         socket.socket = socket._socket_
         return True
     try:
@@ -82,15 +83,18 @@ def proxy(url):
     except ImportError:
         fatal('PySocks module is required')
         return False
-    if url.startswith('socks5://'):
-        body = url[9:]
-        mode = socks.SOCKS5
-    elif url.startswith('socks4://'):
-        body = url[9:]
-        mode = socks.SOCKS4
-    elif url.startswith('http://'):
-        body = url[7:]
-        mode = socks.HTTP
+    res = ascmini.web.url_parse(url)
+    protocol = socks.HTTP
+    if res.scheme == 'socks4':
+        protocol = socks.SOCKS4
+    elif res.scheme in ('socks5', 'socks'):
+        protocol = socks.SOCKS5
+    port = res.port
+    if not port:
+        port = (protocol == socks.HTTP) and 80 or 1080
+    args = [protocol, res.hostname, port, True, res.username, res.password]
+    socks.set_default_proxy(*args)
+    socket.socket = socks.socksocket
     return 0
 
 
@@ -103,9 +107,17 @@ if __name__ == '__main__':
         print(options)
         return 0
     def test2():
+        proxy('socks5://localhost/')
+        proxy('http://localhost/')
+        proxy('socks5://linwei:1234@localhost/')
+        proxy('socks5://linwei:1234:12@localhost/')
         fatal("fuck you")
         return 0
-    test2()
+    def test3():
+        # proxy('socks5://localhost:1080')
+        url = 'https://www.google.com'
+        print(ascmini.http_request(url))
+    test3()
 
 
 
