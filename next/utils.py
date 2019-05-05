@@ -104,7 +104,20 @@ class MarkdownDoc (object):
         html = md.convert(content)
         return html
 
-    def convert (self):
+    def convert (self, engine):
+        if engine is None:
+            engine = ''
+        engine = engine.strip().lower()
+        if engine in ('markdown2', 'default', '0', '', 0):
+            engine = ''
+        if engine == 'pandoc':
+            input = self._content.encode('utf-8', 'ignore')
+            args = ['pandoc', '-f', 'markdown', '-t', 'html']
+            code, stdout, stderr = ascmini.call(args, input)
+            if code != 0:
+                raise SystemError("pandoc exits code is %d: %s" % (
+                    code, stderr.decode('utf-8', 'ignore')))
+            return stdout.decode('utf-8', 'ignore')
         return self._convert_markdown2(self._content)
 
 
@@ -118,8 +131,13 @@ if __name__ == '__main__':
         print(doc._meta)
         print(doc._cats)
         print(doc._tags)
-        print(doc.convert())
+        print(doc.convert('pandoc'))
         return 0
-    test1()
+    def test2():
+        text = ascmini.execute(['cmd', '/c', 'dir'], capture = True)
+        print('---')
+        print(text.decode('gbk'))
+        return 0
+    test2()
 
 

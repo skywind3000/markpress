@@ -68,12 +68,12 @@ def execute(args, shell = False, capture = False):
         shell = False
     if shell and (not capture):
         os.system(cmd)
-        return ''
+        return b''
     elif (not shell) and (not capture):
         import subprocess
         if 'call' in subprocess.__dict__:
             subprocess.call(args)
-            return ''
+            return b''
     import subprocess
     if 'Popen' in subprocess.__dict__:
         p = subprocess.Popen(args, shell = shell,
@@ -83,14 +83,14 @@ def execute(args, shell = False, capture = False):
     else:
         p = None
         stdin, stdouterr = os.popen4(cmd)
-    text = stdouterr.read()
     stdin.close()
+    text = stdouterr.read()
     stdouterr.close()
     if p: p.wait()
     if not capture:
         sys.stdout.write(text)
         sys.stdout.flush()
-        return ''
+        return b''
     return text
 
 
@@ -136,10 +136,10 @@ def call(args, input_data = None, combine = False):
                 input_data = input_data.encode('utf-8', 'ignore')
         stdin.write(input_data)
         stdin.flush()
+    stdin.close()
     exeout = stdout.read()
     if stderr: exeerr = stderr.read()
     else: exeerr = None
-    stdin.close()
     stdout.close()
     if stderr: stderr.close()
     retcode = None
