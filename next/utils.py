@@ -20,9 +20,22 @@ import ascmini
 # extras
 #----------------------------------------------------------------------
 MD_EXTRAS = ['metadata', 'fenced-code-blocks', 'cuddled-list', 
-    'tables', 'footnotes', 'highlightjs-lang']
+    'tables', 'footnotes', 'highlightjs-lang', 'target-blank-links',
+    'use-file-vars']
 
-PANDOC_FLAGS = []
+PANDOC_FLAGS = ['--no-highlight']
+
+PANDOC_EXTENSION = ['fancy_lists', 'fenced_code_blocks', 
+    'fenced_code_attributes']
+
+PYMD_EXTENSION = [ 'fenced_code', 'footnotes', 'tables', 'meta' ]
+
+
+#----------------------------------------------------------------------
+# Error
+#----------------------------------------------------------------------
+class ConvertError (ValueError):
+    pass
 
 
 #----------------------------------------------------------------------
@@ -39,6 +52,7 @@ class MarkdownDoc (object):
         self._tags = []
         self._uuid = None
         self._title = None
+        self._error = None
         self.__parse()
 
     def __parse_list (self, text):
@@ -100,10 +114,35 @@ class MarkdownDoc (object):
             self._tags = None
         return True
 
-    def _convert_markdown2 (self, content):
+    def _convert_default (self, content):
         import markdown2
-        md = markdown2.Markdown(extras = MD_EXTRAS)
+        tabsize = config.options['tabsize']
+        md = markdown2.Markdown(extras = MD_EXTRAS, tab_width = tabsize)
         html = md.convert(content)
+        return html
+
+    def _convert_pandoc (self, content):
+        input = content.encode('utf-8', 'ignore')
+        args = ['pandoc', '-f', 'markdown', '-t', 'html']
+        args.extend(PANDOC_FLAGS)
+        for exts in PANDOC_EXTENSION:
+            if exts[:1] not in ('+', '-'):
+                exts = '+' + exts
+            args[2] += exts
+        code, stdout, stderr = ascmini.call(args, input)
+        self._error = None
+        if code != 0:
+            stderr = stderr.decode('utf-8', 'ignore')
+            error = ConvertError("pandoc exits with code %d: %s" % (
+                code, stderr))
+            error.stdout = stderr
+            raise error
+        return stdout.decode('utf-8', 'ignore')
+
+    # require: https://github.com/Python-Markdown/markdown/
+    def _convert_markdown (self, content):
+        import markdown
+        html = markdown.markdown(content, extensions = PYMD_EXTENSION)
         return html
 
     def convert (self, engine):
@@ -112,15 +151,17 @@ class MarkdownDoc (object):
         engine = engine.strip().lower()
         if engine in ('markdown2', 'default', '0', '', 0):
             engine = ''
+        if engine == 'auto':
+            try:
+                import markdown
+                engine = 'markdown'
+            except ImportError:
+                engine = 'default'
         if engine == 'pandoc':
-            input = self._content.encode('utf-8', 'ignore')
-            args = ['pandoc', '-f', 'markdown', '-t', 'html']
-            code, stdout, stderr = ascmini.call(args, input)
-            if code != 0:
-                raise SystemError("pandoc exits with code %d: %s" % (
-                    code, stderr.decode('utf-8', 'ignore')))
-            return stdout.decode('utf-8', 'ignore')
-        return self._convert_markdown2(self._content)
+            return self._convert_pandoc(self._content)
+        elif engine == 'markdown':
+            return self._convert_markdown(self._content)
+        return self._convert_default(self._content)
 
 
 
@@ -133,7 +174,7 @@ if __name__ == '__main__':
         print(doc._meta)
         print(doc._cats)
         print(doc._tags)
-        print(doc.convert('pandoc'))
+        print(doc.convert('auto'))
         return 0
     def test2():
         text = ascmini.execute(['cmd', '/c', 'dir'], capture = True)
