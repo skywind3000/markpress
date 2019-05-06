@@ -132,9 +132,9 @@ def proxy(url):
 # create wp
 #----------------------------------------------------------------------
 def wp_client():
-    import wordpress
+    import wordpress2
     url = options['url']
-    wp = wordpress.WordPress(url, options['user'], options['passwd'])
+    wp = wordpress2.WordPress(url, options['user'], options['passwd'])
     return wp
 
 

@@ -15,7 +15,6 @@ import time
 import config
 import ascmini
 import utils
-import wordpress
 
 
 #----------------------------------------------------------------------
