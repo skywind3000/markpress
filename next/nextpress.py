@@ -25,13 +25,20 @@ def markpress_load(filename):
     if not os.path.exists(filename):
         config.fatal('file not find: ' + filename)
     doc = utils.MarkdownDoc(filename)
+    if not doc._uuid:
+        config.perror(filename, 1, 'uuid not find in the markdown meta-header')
+        return None
+    uuid = doc._uuid.strip()
+    if not uuid.isdigit():
+        config.perror(filename, 1, 'invalid uuid %s'%uuid)
+        return None
     return doc
 
 
 #----------------------------------------------------------------------
 # convert
 #----------------------------------------------------------------------
-def markpress_convert(doc):
+def markpress_compile(doc):
     doc._html = doc.convert('config')
     return doc._html
 
@@ -41,16 +48,13 @@ def markpress_convert(doc):
 #----------------------------------------------------------------------
 def markpress_update(filename):
     doc = markpress_load(filename)
-    if not doc._uuid:
-        config.perror(filename, 1, 'uuid not find in the markdown meta-header')
+    if not doc:
         return -1
-    uuid = doc._uuid.strip()
-    if not uuid.isdigit():
-        config.perror(filename, 1, 'invalid uuid %s'%uuid)
-        return -2
+    uuid = doc._uuid
     post = {}
     post['id'] = uuid
     post['title'] = doc._title
+    post['content'] = doc.convert('config')
     status = doc._status
     if status not in ('', 'draft', 'private', 'publish'):
         config.perror(filename, 1, 'invalid status %s'%status)
@@ -62,6 +66,27 @@ def markpress_update(filename):
         post['tag'] = doc._tags
     if doc._slug:
         post['slug'] = doc._slug
+    wp = config.wp_client()
+    wp.post_edit(post)
+    pp = wp.post_get(uuid)
+    print('post uuid=%s updated: %s'%(uuid, filename))
+    print('%s'%pp.link) 
+    return 0
+
+
+#----------------------------------------------------------------------
+# fetch info
+#----------------------------------------------------------------------
+def markpress_info(filename):
+    doc = markpress_load(filename)
+    if not doc:
+        return -1
+    uuid = doc._uuid
+    wp = config.wp_client()
+    pp = wp.post_get(uuid)
+    print('uuid: %s'%uuid)
+    print('title: %s'%doc._title)
+    print('link: %s'%pp.link)
     return 0
 
 
@@ -97,12 +122,15 @@ def main(argv = None):
             print('usage: markpress {-n --new} <filename>')
             print('Create a new post and save it to file. Dump to stdout')
             print('if filename is a hyphen (-).')
-        elif 'p' in options or 'preview' in options:
-            print('usage: markpress {-p --preview} <filename>')
-            print('Preview markdown')
         elif 'u' in options or 'update' in options:
             print('usage: markpress {-u --update} <filename>')
             print('Update file to wordpress server')
+        elif 'i' in options or 'info' in options:
+            print('usage: markpress {-i --info} <filename>')
+            print('Get post info')
+        elif 'p' in options or 'preview' in options:
+            print('usage: markpress {-p --preview} <filename>')
+            print('Preview markdown')
         else:
             config.fatal('what help do you need ?')
     elif 'n' in options or 'new' in options:
@@ -112,9 +140,11 @@ def main(argv = None):
         if name == '-':
             fp = sys.stdout
         elif os.path.exists(name):
-            config.fatal('file already exists: ' + name)
+            if 'f' not in options:
+                config.fatal('file already exists: ' + name)
         wp = config.wp_client()
-        pid = wp.post_new() 
+        pid = wp.post_new()
+        pp = wp.post_get(pid)
         if name != '-':
             import codecs
             fp = codecs.open(name, 'w', encoding = 'utf-8')
@@ -125,11 +155,16 @@ def main(argv = None):
         fp.write('categories: \n')
         fp.write('tags: \n')
         fp.write('slug: \n')
-        fp.write('---\n')
+        fp.write('---\n\n')
+        if name != '-':
+            print('new post uuid=%s saved in %s'%(pid, name))
+            print(pp.link)
     elif 'u' in options or 'update' in options:
         if not args:
             config.fatal('missing file name')
         markpress_update(args[0])
+    elif 'i' in options or 'info' in options:
+        markpress_info(args[0])
     elif 'p' in options or 'preview' in options:
         if not args:
             config.fatal('missing file name')
@@ -139,6 +174,7 @@ def main(argv = None):
         print('operations:')
         print('    markpress {-n --new} <filename>')
         print('    markpress {-u --update} <filename>')
+        print('    markpress {-i --info} <filename>')
         print('    markpress {-p --preview} <filename>')
         print()
         print("use 'markpress {-h --help}' with an operation for detail")
@@ -150,6 +186,13 @@ def main(argv = None):
 #----------------------------------------------------------------------
 if __name__ == '__main__':
     def test1():
+        args = ['', '-n', '-f', '../content/1.md']
+        args = ['', '-u', '../content/1.md']
+        main(args)
+        return 0
+    def test2():
+        args = ['', '-i', '../content/1.md']
+        main(args)
         return 0
     def test9():
         args = ['', '-n', '-']
@@ -157,7 +200,7 @@ if __name__ == '__main__':
         args = ['', '-h', '-n']
         main(args)
         return 0
-    test9()
+    test1()
     # main()
 
 

@@ -21,7 +21,7 @@ import ascmini
 #----------------------------------------------------------------------
 MD_EXTRAS = ['metadata', 'fenced-code-blocks', 'cuddled-list', 
     'tables', 'footnotes', 'highlightjs-lang', 'target-blank-links',
-    'use-file-vars']
+    'use-file-vars', 'code-friendly']
 
 PANDOC_FLAGS = ['--no-highlight']
 
@@ -122,7 +122,10 @@ class MarkdownDoc (object):
         tabsize = config.options['tabsize']
         md = markdown2.Markdown(extras = MD_EXTRAS, tab_width = tabsize)
         html = md.convert(content)
-        return html
+        if sys.version_info[0] >= 3:
+            unicode = str
+        text = unicode(html)
+        return text
 
     def _convert_pandoc (self, content):
         input = content.encode('utf-8', 'ignore')
