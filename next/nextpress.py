@@ -36,11 +36,35 @@ def markpress_load(filename):
 
 
 #----------------------------------------------------------------------
-# convert
+# page maker
 #----------------------------------------------------------------------
-def markpress_compile(doc):
-    doc._html = doc.convert('config')
-    return doc._html
+def markpress_page_make(html, title):
+    output = ''
+    output += '<html>\n<head>\n'
+    output += '<meta charset="UTF-8" />\n'
+    if title:
+        text = ascmini.web.text2html(title)
+        output += '<title>%s</title>\n'%text
+    css = config.template['style.css']
+    if css:
+        output += '<style type="text/css">\n'
+        output += css
+        output += '\n</style>\n'
+    header = config.template['header.html']
+    if header:
+        output += header
+        output += '\n'
+    output += '</head>\n\n<body>\n\n'
+    output += '<!--markdown start-->\n'
+    output += html
+    output += '\n\n'
+    output += '<!--markdown endup-->\n\n'
+    footer = config.template['footer.html']
+    if footer:
+        output += footer
+        output += '\n'
+    output += '</body>\n\n</html>\n\n'
+    return output
 
 
 #----------------------------------------------------------------------
@@ -91,6 +115,26 @@ def markpress_info(filename):
 
 
 #----------------------------------------------------------------------
+# convert
+#----------------------------------------------------------------------
+def markpress_compile(filename, outname):
+    doc = markpress_load(filename)
+    if not doc:
+        return -1
+    doc._html = doc.convert('config')
+    content = markpress_page_make(doc._html, doc._title)
+    if (not outname) or (outname == '-'):
+        fp = sys.stdout
+    else:
+        import codecs
+        fp = codecs.open(outname, 'w', encoding = 'utf-8')
+    fp.write(content)
+    if fp != sys.stdout:
+        fp.close()
+    return 0
+
+
+#----------------------------------------------------------------------
 # 
 #----------------------------------------------------------------------
 def markpress_preview(filename):
@@ -128,6 +172,9 @@ def main(argv = None):
         elif 'i' in options or 'info' in options:
             print('usage: markpress {-i --info} <filename>')
             print('Get post info')
+        elif 'c' in options or 'compile' in options:
+            print('usage: markpress {-c --compile} <filename> [outname]')
+            print('Compile markdown to html')
         elif 'p' in options or 'preview' in options:
             print('usage: markpress {-p --preview} <filename>')
             print('Preview markdown')
@@ -164,7 +211,17 @@ def main(argv = None):
             config.fatal('missing file name')
         markpress_update(args[0])
     elif 'i' in options or 'info' in options:
+        if not args:
+            config.fatal('missing file name')
         markpress_info(args[0])
+    elif 'c' in options or 'compile' in options:
+        if not args:
+            config.fatal('missing file name')
+        if len(args) >= 2:
+            outname = args[1]
+        else:
+            outname = os.path.splitext(args[0])[0] + '.html'
+        markpress_compile(args[0], outname)
     elif 'p' in options or 'preview' in options:
         if not args:
             config.fatal('missing file name')
@@ -175,6 +232,7 @@ def main(argv = None):
         print('    markpress {-n --new} <filename>')
         print('    markpress {-u --update} <filename>')
         print('    markpress {-i --info} <filename>')
+        print('    markpress {-c --compile} <filename> [outname]')
         print('    markpress {-p --preview} <filename>')
         print()
         print("use 'markpress {-h --help}' with an operation for detail")
@@ -192,6 +250,8 @@ if __name__ == '__main__':
         return 0
     def test2():
         args = ['', '-i', '../content/1.md']
+        args = ['', '-c', '../content/1.md']
+        # args = ['', '-c', '../content/1.md', '-']
         main(args)
         return 0
     def test9():

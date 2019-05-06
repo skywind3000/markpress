@@ -86,7 +86,10 @@ def _load_template():
     home = os.path.expanduser('~/.config/markpress')
     for name in names:
         fn = os.path.join(home, name)
-        template[name] = ascmini.posix.load_file_text(fn)
+        text = ascmini.posix.load_file_text(fn)
+        if text:
+            text = '\n'.join([ t.rstrip('\r\n') for t in text.split('\n') ])
+        template[name] = text
         # print('name', len(template[name] and template[name] or ''))
     return True
 
