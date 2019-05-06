@@ -68,6 +68,32 @@ def fatal(message, code = 1):
 
 
 #----------------------------------------------------------------------
+# output error
+#----------------------------------------------------------------------
+def perror(fname, line, text):
+    sys.stderr.write('%s:%d: error: %s\n'%(fname, line, text))
+    sys.stderr.flush()
+    return 0
+
+
+#----------------------------------------------------------------------
+# template
+#----------------------------------------------------------------------
+template = {}
+
+def _load_template():
+    names = ['style.css', 'header.html', 'footer.html']
+    home = os.path.expanduser('~/.config/markpress')
+    for name in names:
+        fn = os.path.join(home, name)
+        template[name] = ascmini.posix.load_file_text(fn)
+        # print('name', len(template[name] and template[name] or ''))
+    return True
+
+_load_template()
+
+
+#----------------------------------------------------------------------
 # use proxy
 #----------------------------------------------------------------------
 def proxy(url):
@@ -98,6 +124,17 @@ def proxy(url):
     return 0
 
 
+
+#----------------------------------------------------------------------
+# create wp
+#----------------------------------------------------------------------
+def wp_client():
+    import wordpress
+    url = options['url']
+    wp = wordpress.WordPress(url, options['user'], options['passwd'])
+    return wp
+
+
 #----------------------------------------------------------------------
 # testing suit 
 #----------------------------------------------------------------------
@@ -117,7 +154,7 @@ if __name__ == '__main__':
         # proxy('socks5://localhost:1080')
         url = 'https://www.google.com'
         print(ascmini.http_request(url))
-    test3()
+    test2()
 
 
 

@@ -53,6 +53,7 @@ class MarkdownDoc (object):
         self._uuid = None
         self._title = None
         self._error = None
+        self._status = None
         self.__parse()
 
     def __parse_list (self, text):
@@ -104,6 +105,8 @@ class MarkdownDoc (object):
         self._title = self._meta.get('title', None)
         self._cats = self.__parse_list(self._meta.get('categories'))
         self._tags = self.__parse_list(self._meta.get('tags'))
+        self._slug = self._meta.get('slug', None)
+        self._status = self._meta.get('status', 'draft')
         if not self._uuid:
             self._uuid = None
         if not self._title:
@@ -160,10 +163,10 @@ class MarkdownDoc (object):
                 engine = 'markdown'
             except ImportError:
                 engine = 'default'
-        if engine == 'pandoc':
-            return self._convert_pandoc(self._content)
-        elif engine == 'markdown':
+        if engine == 'markdown':
             return self._convert_markdown(self._content)
+        elif engine == 'pandoc':
+            return self._convert_pandoc(self._content)
         return self._convert_default(self._content)
 
 
@@ -177,7 +180,7 @@ if __name__ == '__main__':
         print(doc._meta)
         print(doc._cats)
         print(doc._tags)
-        print(doc.convert(''))
+        print(doc.convert('markdown'))
         return 0
     def test2():
         text = ascmini.execute(['cmd', '/c', 'dir'], capture = True)

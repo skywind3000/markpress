@@ -361,6 +361,10 @@ class PosixKit (object):
 
     # load content
     def load_file_content (self, filename, mode = 'r'):
+        if hasattr(filename, 'read'):
+            try: content = filename.read()
+            except: pass
+            return content
         try:
             fp = open(filename, mode)
             content = fp.read()
@@ -402,7 +406,16 @@ class PosixKit (object):
             guess = [sys.getdefaultencoding(), 'utf-8']
             if sys.stdout and sys.stdout.encoding:
                 guess.append(sys.stdout.encoding)
+            try:
+                import locale
+                guess.append(locale.getpreferredencoding())
+            except:
+                pass
+            visit = {}
             for name in guess + ['gbk', 'ascii', 'latin1']:
+                if name in visit:
+                    continue
+                visit[name] = 1
                 try:
                     text = content.decode(name)
                     break
