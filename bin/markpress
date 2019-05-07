@@ -1,5 +1,5 @@
 #! /bin/sh
 
 MY_PATH="`dirname \"$0\"`"
-python "${MY_PATH}/markpress.py" "$@"
+python3 "${MY_PATH}/markpress.py" "$@"
 

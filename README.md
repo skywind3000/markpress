@@ -9,30 +9,45 @@ MarkPress is a command line tool to publish markdown posts to your WordPress blo
 ## Features
 
 - Syntax highlighting for fenced code block.
-- Convert GraphViz script to inline SVG.
+- Meta header in markdown to describe title / categories / tags.
+- Using inline GraphViz scripts to generate graphics.
+- Supports Proxy (HTTP/SOCKS4/SOCKS5).
 
 ## Installation
 
-1. Clone the repository to some where you like:
+Clone the repository to some where you like:
 
-    ```bash
-    git clone https://github.com/skywind3000/markpress.git ~/.local/app/markpress
-    ```
+```bash
+git clone https://github.com/skywind3000/markpress.git ~/.local/app/markpress
+```
 
-2. Add `bin` folder in your `$PATH`, put the line below in your `.bashrc` / `.zshrc`:
+Add `bin` folder in your `$PATH`, put the line below in your `.bashrc` / `.zshrc`:
 
-     ```bash
-     export PATH="~/.local/app/markpress/bin:$PATH"
-     ```
+```bash
+export PATH="~/.local/app/markpress/bin:$PATH"
+```
 
-3. Install requirements:
+If you don't want to modify `$PATH`, you can create a symbol link for `markpress/bin/markpress` and put it in somewhere within your `$PATH`.
 
-    ```bash
-    sudo pip install wordpress_xmlrpc beautifulsoup4 PySocks
-    ```
+Install requirements:
+
+```bash
+sudo pip install wordpress_xmlrpc beautifulsoup4 PySocks
+```
 
 Now, command `markpress` is ready to work.
 
 
 ## Quick Start
 
+First, create `config.ini` in `~/.config/markpress`:
+
+```ini
+[default]
+tabsize=4
+
+[0]
+url=http://your-wordpress.com/
+user=USERNAME
+passwd=PASSWORD
+```
