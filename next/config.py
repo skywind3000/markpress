@@ -15,7 +15,7 @@ import ascmini
 
 
 #----------------------------------------------------------------------
-# config
+# loading
 #----------------------------------------------------------------------
 ININAME = '~/.config/markpress/config.ini'
 ININAME = os.path.abspath(os.path.expanduser(ININAME))
@@ -24,6 +24,14 @@ MARKPRESS = os.environ.get('MARKPRESS', '').strip()
 
 cfg = ascmini.ConfigReader(ININAME)
 options = {}
+
+
+#----------------------------------------------------------------------
+# default config
+#----------------------------------------------------------------------
+options['engine'] = cfg.option('default', 'engine', '').strip()
+options['tabsize'] = cfg.option('default', 'tabsize', 4)
+options['graphviz'] = cfg.option('default', 'graphviz', '').strip()
 
 
 #----------------------------------------------------------------------
@@ -37,10 +45,7 @@ def select(section):
     options['url'] = cfg.option(section, 'url', '').strip()
     options['user'] = cfg.option(section, 'user', '').strip()
     options['passwd'] = cfg.option(section, 'passwd', '').strip()
-    options['tabsize'] = cfg.option(section, 'tabsize', 4)
     options['blog'] = cfg.option(section, 'blog', '').strip()
-    options['engine'] = cfg.option(section, 'engine', '').strip()
-    options['proxy'] = cfg.option(section, 'proxy', '').strip()
     if not options['url']:
         raise ValueError('config error: empty url')
     if not options['user']:
@@ -48,7 +53,7 @@ def select(section):
     return True
 
 try:
-    select('default')
+    select('0')
 except:
     pass
 
