@@ -148,7 +148,7 @@ class MarkdownDoc (object):
                     ("&lt;", "<"),
                     ("&gt;", ">")
                 ]
-                for old, new in replacements:
+                for new, old in replacements:
                     src = src.replace(old, new)
                 output.append(head + src)
                 output.append('</code></pre>')
