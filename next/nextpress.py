@@ -176,20 +176,20 @@ def main(argv = None):
         config.proxy(config.options['proxy'])
     if 'h' in options or 'help' in options:
         if 'n' in options or 'new' in options:
-            print('usage: markpress {-n --new} <filename>')
+            print('usage: markpress {-n --new} [--site=SITE] <filename>')
             print('Create a new post and save it to file. Dump to stdout')
             print('if filename is a hyphen (-).')
         elif 'u' in options or 'update' in options:
-            print('usage: markpress {-u --update} <filename>')
+            print('usage: markpress {-u --update} [--site=SITE] <filename>')
             print('Update file to wordpress server')
         elif 'i' in options or 'info' in options:
-            print('usage: markpress {-i --info} <filename>')
+            print('usage: markpress {-i --info} [--site=SITE] <filename>')
             print('Get post info')
         elif 'c' in options or 'compile' in options:
-            print('usage: markpress {-c --compile} <filename> [outname]')
+            print('usage: markpress {-c --compile} [--site=SITE] <filename> [outname]')
             print('Compile markdown to html')
         elif 'p' in options or 'preview' in options:
-            print('usage: markpress {-p --preview} <filename>')
+            print('usage: markpress {-p --preview} [--site=SITE] <filename>')
             print('Preview markdown')
         else:
             config.fatal('what help do you need ?')
