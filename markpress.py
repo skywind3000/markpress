@@ -3,7 +3,7 @@ import sys
 import os
 
 PATH = os.path.abspath(os.path.dirname(__file__))
-sys.path.append(os.path.join(PATH, 'next'))
+sys.path.append(os.path.join(PATH, 'lib'))
 
 try:
     import nextpress
