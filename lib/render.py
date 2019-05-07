@@ -96,6 +96,7 @@ class HtmlRender (object):
             svg = soup.svg.extract()
             p = self._soup.new_tag('pre')
             p.insert(0, svg)
+            p['style'] = 'background:none; border:0px;'
             # print(svg)
         except:
             text = ascmini.callstack()

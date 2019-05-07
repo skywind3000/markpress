@@ -236,6 +236,11 @@ if __name__ == '__main__':
         html = markdown2.markdown('\n`````text\n```cpp\ntext\n```\n`````\n', extras = extras)
         print(html)
         return 0
-    test1()
+    def test4():
+        doc = MarkdownDoc('../content/3.md')
+        html = doc.convert('markdown')
+        print(html)
+        return 0
+    test4()
 
 
