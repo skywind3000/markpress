@@ -117,8 +117,48 @@ class MarkdownDoc (object):
             self._tags = None
         return True
 
+    def _fenced_code_block (self, content):
+        output = []
+        source = []
+        state = 0
+        size = 0
+        mark = ''
+        lang = None
+        for line in content.split('\n'):
+            line = line.rstrip('\r\n\t ')
+            if state == 0:
+                if not line.startswith('```'):
+                    output.append(line)
+                    continue
+                test = line.lstrip('`')
+                size = len(line) - len(test)
+                mark = '`' * size
+                lang = test.strip()
+                state = 1
+                source = []
+            elif state == 1:
+                if line != mark:
+                    source.append(line)
+                    continue
+                src = '\n'.join(source).strip('\n')
+                head = '<pre><code>'
+                if lang:
+                    head = '<pre><code class="%s">'%lang
+                replacements = [
+                    ("&amp;", "&"),
+                    ("&lt;", "<"),
+                    ("&gt;", ">")
+                ]
+                for old, new in replacements:
+                    src = src.replace(old, new)
+                output.append(head + src)
+                output.append('</code></pre>')
+                state = 0
+        return '\n'.join(output)
+
     def _convert_default (self, content):
         import markdown2
+        content = self._fenced_code_block(content)
         tabsize = config.options['tabsize']
         md = markdown2.Markdown(extras = MD_EXTRAS, tab_width = tabsize)
         html = md.convert(content)
@@ -166,11 +206,12 @@ class MarkdownDoc (object):
                 engine = 'markdown'
             except ImportError:
                 engine = 'default'
+        content = self._content
         if engine == 'markdown':
-            return self._convert_markdown(self._content)
+            return self._convert_markdown(content)
         elif engine == 'pandoc':
-            return self._convert_pandoc(self._content)
-        return self._convert_default(self._content)
+            return self._convert_pandoc(content)
+        return self._convert_default(content)
 
 
 
@@ -183,7 +224,7 @@ if __name__ == '__main__':
         print(doc._meta)
         print(doc._cats)
         print(doc._tags)
-        print(doc.convert('markdown'))
+        print(doc.convert(''))
         return 0
     def test2():
         text = ascmini.execute(['cmd', '/c', 'dir'], capture = True)
