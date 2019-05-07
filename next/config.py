@@ -32,6 +32,7 @@ options = {}
 options['engine'] = cfg.option('default', 'engine', '').strip()
 options['tabsize'] = cfg.option('default', 'tabsize', 4)
 options['graphviz'] = cfg.option('default', 'graphviz', '').strip()
+options['proxy'] = None
 
 
 #----------------------------------------------------------------------
@@ -46,6 +47,7 @@ def select(section):
     options['user'] = cfg.option(section, 'user', '').strip()
     options['passwd'] = cfg.option(section, 'passwd', '').strip()
     options['blog'] = cfg.option(section, 'blog', '').strip()
+    options['proxy'] = cfg.option(section, 'proxy', '').strip()
     if not options['url']:
         raise ValueError('config error: empty url')
     if not options['user']:

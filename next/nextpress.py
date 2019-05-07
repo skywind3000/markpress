@@ -18,6 +18,20 @@ import utils
 
 
 #----------------------------------------------------------------------
+# markdown render 
+#----------------------------------------------------------------------
+def markpress_render(doc):
+    html = doc.convert('config')
+    try:
+        import render
+    except ImportError:
+        return html
+    hr = render.HtmlRender(html)
+    hr.process_viz()
+    return hr.render()
+
+
+#----------------------------------------------------------------------
 # load markdown
 #----------------------------------------------------------------------
 def markpress_load(filename):
@@ -77,7 +91,7 @@ def markpress_update(filename):
     post = {}
     post['id'] = uuid
     post['title'] = doc._title
-    post['content'] = doc.convert('config')
+    post['content'] = markpress_render(doc)
     status = doc._status
     if status not in ('', 'draft', 'private', 'publish'):
         config.perror(filename, 1, 'invalid status %s'%status)
@@ -120,7 +134,7 @@ def markpress_compile(filename, outname):
     doc = markpress_load(filename)
     if not doc:
         return -1
-    doc._html = doc.convert('config')
+    doc._html = markpress_render(doc)
     content = markpress_page_make(doc._html, doc._title)
     if (not outname) or (outname == '-'):
         fp = sys.stdout
