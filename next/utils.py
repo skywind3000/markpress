@@ -121,7 +121,6 @@ class MarkdownDoc (object):
         output = []
         source = []
         state = 0
-        size = 0
         mark = ''
         lang = None
         for line in content.split('\n'):
