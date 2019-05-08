@@ -191,11 +191,22 @@ class MarkdownDoc (object):
     # require: https://github.com/Python-Markdown/markdown/
     def _convert_markdown (self, content):
         import markdown
-        extensions = [ n for n in PYMD_EXTENSION ]
+        exts = [ n for n in PYMD_EXTENSION ]
         if config.options['extensions']:
             for n in config.options['extensions'].split(','):
-                extensions.append(n.strip())
-        html = markdown.markdown(content, extensions = extensions)
+                exts.append(n.strip())
+        path = os.path.expanduser('~/.config/markpress')
+        name = os.path.join(path, 'extensions.py')
+        sys.path.insert(0, path)
+        argv = {}
+        argv['extensions'] = exts
+        if os.path.exists(name):
+            import extensions
+            if 'extensions' in extensions.__dict__:
+                exts.extend(extensions.extensions)
+            if 'extension_configs' in extensions.__dict__:
+                argv['extension_configs'] = extensions.extension_configs
+        html = markdown.markdown(content, **argv)
         return html
 
     # engine: native, markdown, pandoc, auto, config
@@ -251,7 +262,7 @@ if __name__ == '__main__':
         print(html)
         return 0
     def test4():
-        doc = MarkdownDoc('../content/3.md')
+        doc = MarkdownDoc('../content/2.md')
         html = doc.convert('markdown')
         print(html)
         return 0
