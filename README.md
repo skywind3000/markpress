@@ -182,5 +182,114 @@ Will be rendered as:
 
 ![](images/math2.gif)
 
+Backslash can be used for escaping the `$`, if you have to input a \$ (dollar) sign in your document, escape it like `\$`.
+
 ## GraphViz
+
+MarkPress supports [GraphViz](https://www.graphviz.org/) to render diagrams:
+
+`````
+```viz-dot
+graph g {
+    A -> B
+    B -> C
+    B -> D
+}
+```
+`````
+
+Code block with `viz-{engine}` notation will be compiled into inline SVG xml in your post. and be rendered by browser like:
+
+![](images/digraph.png)
+
+Engine `dot`, `circo`, `neato`, `osage`, or `twopi` are supported.
+
+`GraphViz` must be installed to enable this. MarkPress needs to find the GraphViz executables (like `dot`, `circo` ...). If they are inaccessible from environment variable `$PATH`, you can tell MarkPress how to find them  in `config.ini`:
+
+```ini
+[default]
+tabsize=4
+graphviz=d:/dev/tools/graphviz/bin
+```
+
+We can use another engine `circo` in a `viz-circo` block:
+
+`````
+```viz-circo
+digraph st2 {
+ rankdir=TB;
+  
+ node [fontname = "Verdana", fontsize = 10, color="skyblue", shape="record"];
+ edge [fontname = "Verdana", fontsize = 10, color="crimson", style="solid"];
+  
+ st_hash_type [label="{<head>st_hash_type|(*compare)|(*hash)}"];
+ st_table_entry [label="{<head>st_table_entry|hash|key|record|<next>next}"];
+ st_table [label="{st_table|<type>type|num_bins|num_entries|<bins>bins}"];
+  
+ st_table:bins -> st_table_entry:head;
+ st_table:type -> st_hash_type:head;
+ st_table_entry:next -> st_table_entry:head [style="dashed", color="forestgreen"];
+}
+```
+`````
+
+Result:
+
+![](images/circo.png)
+
+A lot of funny examples are available in [GraphViz Gallery](https://www.graphviz.org/gallery/).
+
+
+## Visual Studio Code
+
+A VSCode plugin: [Markdown Preview Enhanced](https://github.com/shd101wyy/markdown-preview-enhanced) is recommended to work with MarkPress.
+
+It supports MathJax and GraphViz preview directly. The only thing we need to take care is MPE uses a different notion for GraphViz:
+
+`````
+```viz {engine="dot"}
+script
+```
+`````
+
+We can config MPE to support our `viz-{engine}` notion, use `CTRL+SHIFT+P` and input:
+
+    Markdown Preview Enhanced: Extend Parser
+
+Press `ENTER` and write a parser extender like:
+
+```javascript
+module.exports = {
+  onWillParseMarkdown: function(markdown) {
+    return new Promise((resolve, reject)=> {
+      var reg = new RegExp("^\\s*\\`\\`\\`viz-(\\S+)\\s*$", "g");
+      var parts = markdown.split("\n");
+      var output = new Array();
+      for (var j = 0; j < parts.length; j++) {
+        var text = parts[j];
+        var n = text.match(reg);
+        if (n != null) {
+          var pos = text.indexOf("```viz-");
+          if (pos >= 0) {
+            var name = text.substr(pos + 7).trim();
+            text = text.substr(0, pos) + "```viz {engine=\"" + name + "\"}";
+          }
+        }
+        output.push(text);
+      }
+      markdown = output.join("\n");
+      return resolve(markdown)
+    })
+  },
+  onDidParseMarkdown: function(html) {
+    return new Promise((resolve, reject)=> {
+      return resolve(html)
+    })
+  }
+}
+```
+
+It will translate `viz-xxx` to `viz {engine="xxx"}` before parsing. Then press `CTRL+S` to save the javascript.
+
+Now MPE is capable to recognize our `viz-xxx` code blocks.
 
