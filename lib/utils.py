@@ -87,6 +87,8 @@ class MarkdownDoc (object):
             if state == 0:
                 if line == ('-' * len(line)) and len(line) >= 3:
                     state = 1
+                else:
+                    break
             elif state == 1:
                 if line == ('-' * len(line)) and len(line) >= 3:
                     state = 2

@@ -45,6 +45,7 @@ class WordPress (object):
     # post['status']: string of draft, private, publish
     # post['category']: list
     # post['tag']: list
+    # post['comment']: open/closed
     def __convert_post (self, post):
         newpost = wordpress_xmlrpc.WordPressPost()
         if post:
@@ -64,8 +65,11 @@ class WordPress (object):
                     newpost.terms_names['category'] = cats
                 if tags:
                     newpost.terms_names['post_tag'] = tags
+            comment = post.get('comment', 'open')
+            newpost.comment_status = comment
         else:
             newpost.post_status = 'draft'
+            newpost.comment_status = 'open'
             newpost.content = ''
         return newpost
 
