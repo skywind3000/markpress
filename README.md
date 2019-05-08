@@ -35,7 +35,7 @@ If you don't want to modify `$PATH`, you can create a symbol link for `markpress
 Install requirements:
 
 ```bash
-sudo pip install wordpress_xmlrpc beautifulsoup4 PySocks
+sudo pip install python-wordpress-xmlrpc markdown beautifulsoup4 PySocks
 ```
 
 Now, command `markpress` is ready to work.
@@ -140,11 +140,15 @@ int y = 20;
 </code></pre>
 ```
 
-A wordpress plugin "WP Code Highlight.js" can color each `<code>` tags by using [highlight.js](https://highlightjs.org/).
+A wordpress plugin "WP Code Highlight.js" can color each `<code>` tags by using [highlight.js](https://highlightjs.org/):
 
-It supports 185 languages with 89 styles and will definitely satisfy your need:
+```cpp
+int x = 10;
+int y = 20;
+```
 
-![](images/highlight.png)
+It supports 185 languages with 89 styles and will definitely satisfy your need.
+
 
 You can change the code block styles and modify css in the setting page of "WP Code Highlight.js" in your wordpress dashboard.
 
@@ -177,3 +181,6 @@ $$
 Will be rendered as:
 
 ![](images/math2.gif)
+
+## GraphViz
+
