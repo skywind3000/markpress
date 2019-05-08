@@ -239,6 +239,40 @@ Result:
 
 A lot of funny examples are available in [GraphViz Gallery](https://www.graphviz.org/gallery/).
 
+### Use Python-markdown
+
+By default, MarkPress uses a builtin light-weight markdown parser: [markdown2](https://github.com/trentm/python-markdown2). Most of time it works just fine. 
+
+But you can still change it to a much powerful one: [python-markdown](https://github.com/Python-Markdown/markdown). To setup this, add `engine=markdown` option in the `default` section of your `config.ini`:
+
+```ini
+[default]
+tabsize=4
+graphviz=d:/dev/tools/graphviz/bin
+engine=markdown
+```
+
+The `engine` can be one of:
+
+- `native`: default builtin markdown2 parser
+- `markdown`: python-markdown parser which has a lot of extensions.
+- `pandoc`: as its name.
+
+You can read their documentation before making your choice.
+
+### Proxy
+
+Proxy is specified in the site sections:
+
+```ini
+[0]
+url=https://www.xxxx.com/
+user=jim
+passwd=xxxxx
+proxy=socks5://localhost:1080
+```
+
+PySocks Supports three protocols: `http`, `socks4` and `socks5`.
 
 ## Visual Studio Code
 
