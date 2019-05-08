@@ -154,15 +154,9 @@ def markpress_open(filename, preview):
     doc = markpress_load(filename)
     if not doc:
         return -1
-    uuid = doc._uuid
-    wp = config.wp_client()
-    pp = wp.post_get(uuid)
-    url = pp.link
+    url = doc.link()
     if preview:
-        url = config.options['url']
-        if not url.endswith('/'):
-            url = url + '/'
-        url = url + '?p=%s&preview=true'%uuid
+        url = url + '&preview=true'
     import subprocess
     subprocess.call(['cmd.exe', '/C', 'start', url])
     return 0

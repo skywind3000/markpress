@@ -212,6 +212,12 @@ class MarkdownDoc (object):
             return self._convert_pandoc(content)
         return self._convert_default(content)
 
+    def link (self):
+        url = config.options['url']
+        if not url.endswith('/'):
+            url += '/'
+        return url + '?' + self._uuid
+
 
 
 #----------------------------------------------------------------------
