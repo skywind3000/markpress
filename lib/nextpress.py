@@ -148,9 +148,31 @@ def markpress_compile(filename, outname):
 
 
 #----------------------------------------------------------------------
+# open in browser
+#----------------------------------------------------------------------
+def markpress_open(filename, preview):
+    doc = markpress_load(filename)
+    if not doc:
+        return -1
+    uuid = doc._uuid
+    wp = config.wp_client()
+    pp = wp.post_get(uuid)
+    url = pp.link
+    if preview:
+        url = config.options['url']
+        if not url.endswith('/'):
+            url = url + '/'
+        url = url + '?p=%s&preview=true'%uuid
+    import subprocess
+    subprocess.call(['cmd.exe', '/C', 'start', url])
+    return 0
+
+
+#----------------------------------------------------------------------
 # 
 #----------------------------------------------------------------------
 def markpress_preview(filename):
+    markpress_open(filename, True)
     return 0
 
 
@@ -188,6 +210,9 @@ def main(argv = None):
         elif 'c' in options or 'compile' in options:
             print('usage: markpress {-c --compile} [--site=SITE] <filename> [outname]')
             print('Compile markdown to html')
+        elif 'o' in options or 'open' in options:
+            print('usage: markpress {-o --open} <filename>')
+            print('Open post in browser')
         elif 'p' in options or 'preview' in options:
             print('usage: markpress {-p --preview} [--site=SITE] <filename>')
             print('Preview markdown')
@@ -235,6 +260,10 @@ def main(argv = None):
         else:
             outname = os.path.splitext(args[0])[0] + '.html'
         markpress_compile(args[0], outname)
+    elif 'o' in options or 'open' in options:
+        if not args:
+            config.fatal('missing file name')
+        markpress_open(args[0], False)
     elif 'p' in options or 'preview' in options:
         if not args:
             config.fatal('missing file name')
@@ -246,6 +275,7 @@ def main(argv = None):
         print('    markpress {-u --update} <filename>')
         print('    markpress {-i --info} <filename>')
         print('    markpress {-c --compile} <filename> [outname]')
+        print('    markpress {-o --open} <filename>')
         print('    markpress {-p --preview} <filename>')
         print()
         print("use 'markpress {-h --help}' with an operation for detail")

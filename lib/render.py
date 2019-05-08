@@ -108,7 +108,8 @@ class HtmlRender (object):
         return p
 
     def render (self):
-        return self._soup.prettify()
+        # return self._soup.prettify()
+        return unicode(self._soup)
 
 
 

@@ -51,3 +51,6 @@ url=http://your-wordpress.com/
 user=USERNAME
 passwd=PASSWORD
 ```
+
+Multiple sites can be defined in different section, like `[0]`, `[1]` and `[2]`. Section `0` is the default site.
+
