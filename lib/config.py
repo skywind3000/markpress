@@ -32,6 +32,8 @@ options = {}
 options['engine'] = cfg.option('default', 'engine', '').strip()
 options['tabsize'] = cfg.option('default', 'tabsize', 4)
 options['graphviz'] = cfg.option('default', 'graphviz', '').strip()
+options['extensions'] = cfg.option('default', 'extensions', '').strip()
+options['extras'] = cfg.option('default', 'extras', '').strip()
 options['proxy'] = None
 
 

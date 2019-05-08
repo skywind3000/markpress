@@ -159,7 +159,11 @@ class MarkdownDoc (object):
         import markdown2
         content = self._fenced_code_block(content)
         tabsize = config.options['tabsize']
-        md = markdown2.Markdown(extras = MD_EXTRAS, tab_width = tabsize)
+        extras = [ n for n in MD_EXTRAS ]
+        if config.options['extras']:
+            for n in config.options['extras'].split(','):
+                extras.append(n.strip())
+        md = markdown2.Markdown(extras = extras, tab_width = tabsize)
         html = md.convert(content)
         if sys.version_info[0] >= 3:
             unicode = str
@@ -187,7 +191,11 @@ class MarkdownDoc (object):
     # require: https://github.com/Python-Markdown/markdown/
     def _convert_markdown (self, content):
         import markdown
-        html = markdown.markdown(content, extensions = PYMD_EXTENSION)
+        extensions = [ n for n in PYMD_EXTENSION ]
+        if config.options['extensions']:
+            for n in config.options['extensions'].split(','):
+                extensions.append(n.strip())
+        html = markdown.markdown(content, extensions = extensions)
         return html
 
     # engine: native, markdown, pandoc, auto, config

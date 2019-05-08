@@ -1,19 +1,12 @@
----
-output: word_document
----
-# MarkPress
-
-Publish MarkDown documents to WordPress in command line.
-
 ## Preface
 
-MarkPress is a command line tool to publish markdown posts to your WordPress blog.
+MarkPress is a command line tool to create and publish markdown post for WordPress.
 
 ## Features
 
 - Syntax highlighting for fenced code block.
 - Meta header in markdown to describe title / categories / tags.
-- Using inline GraphViz scripts to generate graphics.
+- Supports GraphViz scripts to render graphics.
 - Supports Proxy (HTTP/SOCKS4/SOCKS5).
 
 ## Installation
@@ -239,26 +232,42 @@ Result:
 
 A lot of funny examples are available in [GraphViz Gallery](https://www.graphviz.org/gallery/).
 
-### Use Python-markdown
+### Python-markdown
 
-By default, MarkPress uses a builtin light-weight markdown parser: [markdown2](https://github.com/trentm/python-markdown2). Most of time it works just fine. 
+MarkPress ships with light-weight markdown parser called [markdown2](https://github.com/trentm/python-markdown2). Most of time it works just fine. 
 
 But you can still change it to a much powerful one: [python-markdown](https://github.com/Python-Markdown/markdown). To setup this, add `engine=markdown` option in the `default` section of your `config.ini`:
 
 ```ini
 [default]
-tabsize=4
-graphviz=d:/dev/tools/graphviz/bin
 engine=markdown
+...
 ```
 
 The `engine` can be one of:
 
-- `native`: default builtin markdown2 parser
-- `markdown`: python-markdown parser which has a lot of extensions.
+- `native`: default builtin markdown2 parser.
+- `markdown`: python-markdown parser.
 - `pandoc`: as its name.
 
-You can read their documentation before making your choice.
+The `python-markdown` has a lot of [official](https://python-markdown.github.io/extensions/) and [third-party](https://github.com/Python-Markdown/markdown/wiki/Third-Party-Extensions) extensions.
+
+Declare the extensions as a comma separated list in the `config.ini`:
+
+```ini
+[default]
+engine=markdown
+extensions=pymdownx.emoji,pymdownx.details
+...
+```
+
+Remember to install them before that:
+
+```bash
+pip install pymdown-extensions
+```
+
+Then we can use github emoji markup like `:sunglasses:` in our markdown document, and it will be rendered as: :sunglasses:
 
 ### Proxy
 
@@ -273,6 +282,7 @@ proxy=socks5://localhost:1080
 ```
 
 PySocks Supports three protocols: `http`, `socks4` and `socks5`.
+
 
 ## Visual Studio Code
 
