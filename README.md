@@ -257,7 +257,7 @@ Declare the extensions as a comma separated list in the `config.ini`:
 ```ini
 [default]
 engine=markdown
-extensions=pymdownx.emoji,pymdownx.details
+extensions=pymdownx.emoji,pymdownx.details,pymdownx.magiclink,pymdownx.tilde
 ...
 ```
 
@@ -268,6 +268,8 @@ pip install pymdown-extensions
 ```
 
 Then we can use github emoji markup like `:sunglasses:` in our markdown document, and it will be rendered as: :sunglasses:
+
+And use `~~tilde~~` to represents ~~tilde~~.
 
 ### Proxy
 
