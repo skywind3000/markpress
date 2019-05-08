@@ -271,6 +271,8 @@ Then we can use github emoji markup like `:sunglasses:` in our markdown document
 
 And use `~~tilde~~` to represents ~~tilde~~.
 
+There can also be a `~/.config/markpress/extensions.py` file can be used to define a `extension_configs` dict object which will be passed to `python-markdown`.
+
 ### Proxy
 
 Proxy is specified in the site sections:
