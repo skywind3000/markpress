@@ -65,8 +65,8 @@ class WordPress (object):
                     newpost.terms_names['category'] = cats
                 if tags:
                     newpost.terms_names['post_tag'] = tags
-            comment = post.get('comment', 'open')
-            newpost.comment_status = comment
+            if post.get('comment'):
+                newpost.comment_status = post['comment']
         else:
             newpost.post_status = 'draft'
             newpost.comment_status = 'open'
