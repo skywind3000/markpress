@@ -234,7 +234,7 @@ A lot of funny examples are available in [GraphViz Gallery](https://www.graphviz
 
 ### Python-markdown
 
-MarkPress ships with light-weight markdown parser called [markdown2](https://github.com/trentm/python-markdown2). Most of time it works just fine. 
+MarkPress ships with a light-weight markdown parser called [markdown2](https://github.com/trentm/python-markdown2). Most of time it works just fine. 
 
 But you can still change it to a much powerful one: [python-markdown](https://github.com/Python-Markdown/markdown). To setup this, add `engine=markdown` option in the `default` section of your `config.ini`:
 
