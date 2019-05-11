@@ -110,7 +110,20 @@ For Windows, use `-o` to open the url in your favorite browser:
 markpress -o mypost.md
 ```
 
+There is also a `date` option in the meta header for publishing date:
+
+```
+---
+...
+date: 2019-05-11 18:48
+---
+```
+
+You can use it to indicate the document's date in local time precisely. For UTC time, use the format like `2019-05-11T18:48Z`.
+
 That's all you need to know.
+
+
 
 ## Options
 

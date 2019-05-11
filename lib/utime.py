@@ -273,7 +273,7 @@ def read_timestamp (timestamp, tz = None):
             return string_to_timestamp(timestamp + ':00', tz)
         elif len(timestamp) == 10:
             return string_to_timestamp(timestamp + ' 00:00:00', tz)
-    elif timestamp[:1].isdigit() and timestamp[-1:] == 'Z':
+    if timestamp[:1].isdigit() and timestamp[-1:] == 'Z':
         return iso_to_timestamp(timestamp)
     return timestamp
 
