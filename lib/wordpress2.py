@@ -72,6 +72,8 @@ class WordPress (object):
                 newpost.date = post['date']
             if post.get('date_modifed'):
                 newpost.date_modified = post['date_modified']
+            if post.get('slug'):
+                newpost.slug = post['slug']
         else:
             newpost.post_status = 'draft'
             newpost.comment_status = 'open'
