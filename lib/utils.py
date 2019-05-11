@@ -174,6 +174,29 @@ class MarkdownDoc (object):
         text = unicode(html)
         return text
 
+    # require: https://github.com/Python-Markdown/markdown/
+    def _convert_markdown (self, content):
+        import markdown
+        exts = [ n for n in PYMD_EXTENSION ]
+        if config.options['extensions']:
+            for n in config.options['extensions'].split(','):
+                exts.append(n.strip())
+        path = os.path.expanduser('~/.config/markpress')
+        name = os.path.join(path, 'extensions.py')
+        tabsize = config.options['tabsize']
+        sys.path.insert(0, path)
+        argv = {}
+        argv['extensions'] = exts
+        if os.path.exists(name):
+            import extensions
+            if 'extensions' in extensions.__dict__:
+                exts.extend(extensions.extensions)
+            if 'extension_configs' in extensions.__dict__:
+                argv['extension_configs'] = extensions.extension_configs
+        argv['tab_length'] = int(tabsize)
+        html = markdown.markdown(content, **argv)
+        return html
+
     def _convert_pandoc (self, content):
         input = content.encode('utf-8', 'ignore')
         args = ['pandoc', '-f', 'markdown', '-t', 'html']
@@ -191,27 +214,6 @@ class MarkdownDoc (object):
             error.stdout = stderr
             raise error
         return stdout.decode('utf-8', 'ignore')
-
-    # require: https://github.com/Python-Markdown/markdown/
-    def _convert_markdown (self, content):
-        import markdown
-        exts = [ n for n in PYMD_EXTENSION ]
-        if config.options['extensions']:
-            for n in config.options['extensions'].split(','):
-                exts.append(n.strip())
-        path = os.path.expanduser('~/.config/markpress')
-        name = os.path.join(path, 'extensions.py')
-        sys.path.insert(0, path)
-        argv = {}
-        argv['extensions'] = exts
-        if os.path.exists(name):
-            import extensions
-            if 'extensions' in extensions.__dict__:
-                exts.extend(extensions.extensions)
-            if 'extension_configs' in extensions.__dict__:
-                argv['extension_configs'] = extensions.extension_configs
-        html = markdown.markdown(content, **argv)
-        return html
 
     # engine: native, markdown, pandoc, auto, config
     def convert (self, engine):
