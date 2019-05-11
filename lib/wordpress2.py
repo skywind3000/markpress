@@ -46,6 +46,7 @@ class WordPress (object):
     # post['category']: list
     # post['tag']: list
     # post['comment']: open/closed
+    # post['date']: datetime object in UTC
     def __convert_post (self, post):
         newpost = wordpress_xmlrpc.WordPressPost()
         if post:
@@ -67,6 +68,10 @@ class WordPress (object):
                     newpost.terms_names['post_tag'] = tags
             if post.get('comment'):
                 newpost.comment_status = post['comment']
+            if post.get('date'):
+                newpost.date = post['date']
+            if post.get('date_modifed'):
+                newpost.date_modified = post['date_modified']
         else:
             newpost.post_status = 'draft'
             newpost.comment_status = 'open'
@@ -178,6 +183,8 @@ if __name__ == '__main__':
         for post in wp.post_list(query):
             print(post)
             print(post.link)
+            print(post.date)
+            print(type(post.date), post.date.timestamp())
         return 0
     test4()
 
