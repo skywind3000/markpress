@@ -234,13 +234,17 @@ def iso_to_timestamp (iso):
     if iso[10:11].upper() != 'T':
         raise ValueError('require an ISO 8601 UTC format')
     if '.' in iso:
-        if len(iso) == 28:
+        if len(iso) >= 28:
             if iso[19:20] == '.':
                 iso = iso[:26] + 'Z'
             else:
                 raise ValueError('bad iso 8601 format')
         dt = datetime.datetime.strptime(iso[:-1], '%Y-%m-%dT%H:%M:%S.%f')
     else:
+        if len(iso) == 17:
+            iso = iso[:16] + ':00Z'
+        elif len(iso) == 12:
+            iso = iso[:11] + '00:00:00Z'
         dt = datetime.datetime.strptime(iso[:-1], '%Y-%m-%dT%H:%M:%S')
     dt = dt.replace(tzinfo = timezone.utc)
     return datetime_to_timestamp(dt)
@@ -265,6 +269,8 @@ def read_timestamp (timestamp, tz = None):
     elif timestamp[:1].isdigit() and timestamp[4:5] == '-':
         if len(timestamp) == 19:
             return string_to_timestamp(timestamp, tz)
+        elif len(timestamp) == 16:
+            return string_to_timestamp(timestamp + ':00', tz)
         elif len(timestamp) == 10:
             return string_to_timestamp(timestamp + ' 00:00:00', tz)
     elif timestamp[:1].isdigit() and timestamp[-1:] == 'Z':
@@ -282,6 +288,25 @@ def compact_from_timestamp(ts, tz = None, seconds = False):
     dt = timestamp_to_datetime(ts, tz)
     return dt.strftime(seconds and fmt2 or fmt1)
 
+
+#----------------------------------------------------------------------
+# utc to local without tz
+#----------------------------------------------------------------------
+def utc_to_local(utc):
+    epoch = time.mktime(utc.timetuple())
+    offset = datetime.datetime.fromtimestamp(epoch) - \
+        datetime.datetime.utcfromtimestamp(epoch)
+    return utc + offset
+
+
+#----------------------------------------------------------------------
+# local to utc
+#----------------------------------------------------------------------
+def local_to_utc(local):
+    epoch = time.mktime(local.timetuple())
+    offset = datetime.datetime.fromtimestamp(epoch) - \
+        datetime.datetime.utcfromtimestamp(epoch)
+    return local - offset
 
 
 #----------------------------------------------------------------------
@@ -308,7 +333,14 @@ if __name__ == '__main__':
         dt = timestamp_to_datetime(ts, timezone.utc)
         print(dt)
         print(read_timestamp('2018-01-01 12:00:32'))
-    test2()
+    def test3():
+        dt = datetime.datetime.fromtimestamp(time.time())
+        print(dt)
+        utc = local_to_utc(dt)
+        print(utc)
+        print(utc_to_local(utc))
+        return 0
+    test3()
 
 
 

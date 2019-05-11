@@ -14,6 +14,7 @@ import os
 import time
 import config
 import ascmini
+import utime
 
 
 #----------------------------------------------------------------------
@@ -108,6 +109,7 @@ class MarkdownDoc (object):
         self._cats = self.__parse_list(self._meta.get('categories'))
         self._tags = self.__parse_list(self._meta.get('tags'))
         self._slug = self._meta.get('slug', None)
+        self._date = self._meta.get('date', None)
         self._status = self._meta.get('status', 'draft')
         if not self._uuid:
             self._uuid = None
@@ -239,6 +241,11 @@ class MarkdownDoc (object):
             url += '/'
         return url + '?' + self._uuid
 
+
+#----------------------------------------------------------------------
+# utc datetime 
+#----------------------------------------------------------------------
+def utc_datetime
 
 
 #----------------------------------------------------------------------
