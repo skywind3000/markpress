@@ -245,7 +245,10 @@ class MarkdownDoc (object):
 #----------------------------------------------------------------------
 # utc datetime 
 #----------------------------------------------------------------------
-def utc_datetime
+def utc_datetime(text):
+    import datetime
+    ts = utime.read_timestamp(text)
+    return datetime.datetime.utcfromtimestamp(ts)
 
 
 #----------------------------------------------------------------------

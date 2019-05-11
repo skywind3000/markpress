@@ -103,6 +103,8 @@ def markpress_update(filename):
         post['tag'] = doc._tags
     if doc._slug:
         post['slug'] = doc._slug
+    if doc._date:
+        post['date'] = utils.utc_datetime(doc._date)
     wp = config.wp_client()
     wp.post_edit(post)
     pp = wp.post_get(uuid)
