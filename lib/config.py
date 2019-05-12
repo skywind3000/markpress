@@ -160,7 +160,7 @@ if __name__ == '__main__':
         proxy('http://localhost/')
         proxy('socks5://linwei:1234@localhost/')
         proxy('socks5://linwei:1234:12@localhost/')
-        fatal("fuck you")
+        fatal("test")
         return 0
     def test3():
         # proxy('socks5://localhost:1080')
