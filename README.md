@@ -68,7 +68,7 @@ tags:
 ---
 ```
 
-WordPress server will allocate a unique `uuid` for each new post, and use it for post identification. Now you can edit `mypost.md` with your favorite edit and write something like:
+WordPress server will allocate a unique `uuid` for each new post, and use it for post identification. Now you can edit `mypost.md` with your favorite editor and write something like:
 
 ```
 ---
