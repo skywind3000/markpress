@@ -3,12 +3,11 @@ import sys
 import os
 
 PATH = os.path.abspath(os.path.dirname(__file__))
-sys.path.append(os.path.join(PATH, '../lib'))
+PATH = os.path.join(PATH, '../lib')
+sys.path.append(os.path.normpath(PATH))
 
-try:
+if 1:
     import nextpress
-except:
-    pass
 
 nextpress.main()
 
