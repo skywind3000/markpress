@@ -230,7 +230,8 @@ if __name__ == '__main__':
         global SCRIPT_ENCODING
         # SCRIPT_ENCODING = 'utf-8'
         doc = utils.MarkdownDoc('../test/1.md')
-        html = doc.convert('')
+        html = doc.convert('markdown')
+        # html = doc.convert('')
         hr = HtmlRender(html)
         hr.process_viz()
         print(hr.render())

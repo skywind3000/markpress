@@ -122,25 +122,30 @@ class MarkdownDoc (object):
         return True
 
     def _fenced_code_block (self, content):
+        import re
         output = []
         source = []
         state = 0
         mark = ''
         lang = None
+        p1 = re.compile(r'^\s{0,3}```*')
+        p2 = re.compile(r'^\s{0,3}~~~*')
         for line in content.split('\n'):
             line = line.rstrip('\r\n\t ')
             if state == 0:
-                if not line.startswith('```'):
+                m1 = re.match(p1, line)
+                m2 = re.match(p2, line)
+                mm = m1 and m1 or m2
+                if not mm:
                     output.append(line)
                     continue
-                test = line.lstrip('`')
-                size = len(line) - len(test)
-                mark = '`' * size
-                lang = test.strip()
+                span = mm.span()
+                mark = line[:span[1]]
+                lang = line[span[1]:].strip()
                 state = 1
                 source = []
             elif state == 1:
-                if line != mark:
+                if not line.startswith(mark):
                     source.append(line)
                     continue
                 src = '\n'.join(source).strip('\n')
@@ -150,7 +155,8 @@ class MarkdownDoc (object):
                 replacements = [
                     ("&amp;", "&"),
                     ("&lt;", "<"),
-                    ("&gt;", ">")
+                    ("&gt;", ">"),
+                    ("&#96;", "`"),
                 ]
                 for new, old in replacements:
                     src = src.replace(old, new)
@@ -198,6 +204,7 @@ class MarkdownDoc (object):
         return html
 
     def _convert_pandoc (self, content):
+        content = self._fenced_code_block(content)
         input = content.encode('utf-8', 'ignore')
         args = ['pandoc', '-f', 'markdown', '-t', 'html']
         args.extend(PANDOC_FLAGS)
@@ -276,8 +283,10 @@ if __name__ == '__main__':
         print(html)
         return 0
     def test4():
-        doc = MarkdownDoc('../content/2.md')
-        html = doc.convert('markdown')
+        doc = MarkdownDoc('../test/3.md')
+        html = doc.convert('')
+        # html = doc.convert('markdown')
+        html = doc.convert('pandoc')
         print(html)
         return 0
     test4()
