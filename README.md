@@ -286,6 +286,9 @@ And use `~~tilde~~` to represents ~~tilde~~.
 
 There can also be a `~/.config/markpress/extensions.py` file can be used to define a `extension_configs` dict object which will be passed to `python-markdown`.
 
+If you are using emoji you may need this to specify styles, see more [here](https://github.com/skywind3000/markpress/wiki/python-markdown-configuration).
+
+
 ### Proxy
 
 Proxy is specified in the site sections:
