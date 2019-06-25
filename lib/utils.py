@@ -121,7 +121,7 @@ class MarkdownDoc (object):
             self._tags = None
         return True
 
-    def _fenced_code_block (self, content):
+    def _fenced_code_block (self, content, tabsize = 4):
         import re
         output = []
         source = []
@@ -146,7 +146,7 @@ class MarkdownDoc (object):
                 source = []
             elif state == 1:
                 if not line.startswith(mark):
-                    source.append(line)
+                    source.append(line.expandtabs(tabsize))
                     continue
                 src = '\n'.join(source).strip('\n')
                 head = '<pre><code>'
@@ -167,8 +167,8 @@ class MarkdownDoc (object):
 
     def _convert_default (self, content):
         import markdown2
-        content = self._fenced_code_block(content)
         tabsize = config.options['tabsize']
+        content = self._fenced_code_block(content, tabsize)
         extras = [ n for n in MD_EXTRAS ]
         if config.options['extras']:
             for n in config.options['extras'].split(','):
@@ -204,7 +204,8 @@ class MarkdownDoc (object):
         return html
 
     def _convert_pandoc (self, content):
-        content = self._fenced_code_block(content)
+        tabsize = config.options['tabsize']
+        content = self._fenced_code_block(content, tabsize)
         input = content.encode('utf-8', 'ignore')
         args = ['pandoc', '-f', 'markdown', '-t', 'html']
         args.extend(PANDOC_FLAGS)
