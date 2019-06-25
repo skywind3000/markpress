@@ -31,7 +31,9 @@ options = {}
 #----------------------------------------------------------------------
 options['engine'] = cfg.option('default', 'engine', '').strip()
 options['tabsize'] = cfg.option('default', 'tabsize', 4)
+options['encoding'] = cfg.option('default', 'encoding', '').strip()
 options['graphviz'] = cfg.option('default', 'graphviz', '').strip()
+options['path'] = cfg.option('default', 'path', '').strip()
 options['extensions'] = cfg.option('default', 'extensions', '').strip()
 options['extras'] = cfg.option('default', 'extras', '').strip()
 options['proxy'] = None
