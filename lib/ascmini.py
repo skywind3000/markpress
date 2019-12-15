@@ -6,7 +6,7 @@
 # ascmini.py - mini library
 #
 # Created by skywind on 2017/03/24
-# Version: 6, Last Modified: 2019/05/12 22:10
+# Version: 7, Last Modified: 2019/09/27 07:56
 #
 #======================================================================
 from __future__ import print_function
@@ -505,7 +505,7 @@ def http_request(url, timeout = 10, data = None, post = False, head = None):
                 data = data.encode('utf-8', 'ignore')
             req = urllib.request.Request(url, data)
         if head:
-            for k, v in head:
+            for k, v in head.items():
                 req.add_header(k, v)
         try:
             res = urllib.request.urlopen(req, timeout = timeout)
@@ -543,7 +543,7 @@ def http_request(url, timeout = 10, data = None, post = False, head = None):
         else:
             req = urllib2.Request(url, data is not None and data or '')
         if head:
-            for k, v in head:
+            for k, v in head.items():
                 req.add_header(k, v)
         try:
             res = urllib2.urlopen(req, timeout = timeout)
@@ -799,7 +799,7 @@ def csv_save (filename, rows, encoding = 'utf-8'):
         fp = open(filename, 'wb')
         writer = csv.writer(fp)
     else:
-        fp = open(filename, 'w', encoding = encoding)
+        fp = open(filename, 'w', encoding = encoding, newline = '')
         writer = csv.writer(fp)
     for row in rows:
         newrow = []
@@ -934,16 +934,27 @@ class WebKit (object):
         import urllib.parse
         return urllib.parse.urlparse(url)
 
-    def url_unquote (self, text, plus = False):
+    def url_unquote (self, text, plus = True):
         if sys.version_info[0] < 3:
-            import urlparse
+            import urllib
             if plus:
-                text = text.replace('+', ' ')
-            return urlparse.unquote(text)
+                return urllib.unquote_plus(text)
+            return urllib.unquote(text)
         import urllib.parse
         if plus:
             return urllib.parse.unquote_plus(text)
         return urllib.parse.unquote(text)
+
+    def url_quote (self, text, plus = True):
+        if sys.version_info[0] < 3:
+            import urllib
+            if plus:
+                return urllib.quote_plus(text)
+            return urlparse.quote(text)
+        import urllib.parse
+        if plus:
+            return urllib.parse.quote_plus(text)
+        return urllib.parse.quote(text)
         
     def url_parse_qs (self, text, keep_blank = 0):
         if sys.version_info[0] < 3:
