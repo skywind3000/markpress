@@ -6,10 +6,10 @@
 # ascmini.py - mini library
 #
 # Created by skywind on 2017/03/24
-# Version: 7, Last Modified: 2019/09/27 07:56
+# Version: 8, Last Modified: 2022/10/18 23:22
 #
 #======================================================================
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 import sys
 import time
 import os
@@ -437,6 +437,47 @@ class PosixKit (object):
                 text = content.decode('utf-8', 'ignore')
         return text
 
+    # save file text
+    def save_file_text (self, filename, content, encoding = None):
+        import codecs
+        if encoding is None:
+            encoding = 'utf-8'
+        if (not isinstance(content, unicode)) and isinstance(content, bytes):
+            return self.save_file_content(filename, content)
+        with codecs.open(filename, 'w', 
+                encoding = encoding, 
+                errors = 'ignore') as fp:
+            fp.write(content)
+        return True
+
+    # load ini without ConfigParser
+    def load_ini (self, filename, encoding = None):
+        text = self.load_file_text(filename, encoding)
+        config = {}
+        sect = 'default'
+        if text is None:
+            return None
+        for line in text.split('\n'):
+            line = line.strip('\r\n\t ')
+            if not line:
+                continue
+            elif line[:1] in ('#', ';'):
+                continue
+            elif line.startswith('['):
+                if line.endswith(']'):
+                    sect = line[1:-1].strip('\r\n\t ')
+                    if sect not in config:
+                        config[sect] = {}
+            else:
+                pos = line.find('=')
+                if pos >= 0:
+                    key = line[:pos].rstrip('\r\n\t ')
+                    val = line[pos + 1:].lstrip('\r\n\t ')
+                    if sect not in config:
+                        config[sect] = {}
+                    config[sect][key] = val
+        return config
+
 
 #----------------------------------------------------------------------
 # instance
@@ -486,6 +527,7 @@ def http_request(url, timeout = 10, data = None, post = False, head = None):
     headers = []
     import urllib
     import ssl
+    status = -1
     if sys.version_info[0] >= 3:
         import urllib.parse
         import urllib.request
@@ -519,6 +561,7 @@ def http_request(url, timeout = 10, data = None, post = False, head = None):
         except ssl.SSLError:
             return -2, 'timeout', None
         content = res.read()
+        status = res.getcode()
     else:
         import urllib2
         if data is not None:
@@ -548,6 +591,7 @@ def http_request(url, timeout = 10, data = None, post = False, head = None):
         try:
             res = urllib2.urlopen(req, timeout = timeout)
             content = res.read()
+            status = res.getcode()
             if res.info().headers:
                 for line in res.info().headers:
                     line = line.rstrip('\r\n\t')
@@ -565,7 +609,7 @@ def http_request(url, timeout = 10, data = None, post = False, head = None):
             return -2, 'timeout', None
         except ssl.SSLError:
             return -2, 'timeout', None
-    return 200, content, headers
+    return status, content, headers
 
 
 #----------------------------------------------------------------------
@@ -1009,24 +1053,38 @@ class LazyRequests (object):
 
     def request (self, name, url, data = None, post = False, header = None):
         import requests
+        import copy
         s = self.__session_get(name)
         if not s:
             s = requests.Session()
         r = None
         option = self._options.get(name, {})
         argv = {}
-        if header is not None:
-            argv['headers'] = header
         timeout = self._option.get('timeout', None)
         proxy = self._option.get('proxy', None)
+        agent = self._option.get('agent', None)
         if 'timeout' in option:
             timeout = option.get('timeout')
         if 'proxy' in option:
             proxy = option['proxy']
+        if proxy and isinstance(proxy, str):
+            if proxy.startswith('socks5://'):
+                proxy = 'socks5h://' + proxy[9:]
+                proxy = {'http': proxy, 'https': proxy}
+        if 'agent' in option:
+            agent = option['agent']
         if timeout:
             argv['timeout'] = timeout
         if proxy:
             argv['proxies'] = proxy
+        if header is None:
+            header = {}
+        else:
+            header = copy.deepcopy(header)
+        if agent:
+            header['User-Agent'] = agent
+        if header is not None:
+            argv['headers'] = header
         if not post:
             if data is not None:
                 argv['params'] = data
@@ -1090,6 +1148,12 @@ class LazyRequests (object):
 
 
 #----------------------------------------------------------------------
+# instance
+#----------------------------------------------------------------------
+lazy = LazyRequests()
+
+
+#----------------------------------------------------------------------
 # ShellUtils
 #----------------------------------------------------------------------
 class ShellUtils (object):
@@ -1126,12 +1190,12 @@ class ShellUtils (object):
         base = path
         while True:
             parent = os.path.normpath(os.path.join(base, '..'))
-            if parent == base:
-                break
             for marker in markers:
                 test = os.path.join(base, marker)
                 if os.path.exists(test):
                     return base
+            if os.path.normcase(parent) == os.path.normcase(base):
+                break
             base = parent
         if fallback:
             return path
@@ -1601,6 +1665,62 @@ def json_loads(text):
 
 
 #----------------------------------------------------------------------
+# misc functions
+#----------------------------------------------------------------------
+
+# calling fzf
+def fzf_execute(input, args = None, fzf = None):
+    import tempfile
+    code = 0
+    output = None
+    args = args is not None and args or ''
+    fzf = fzf is not None and fzf or 'fzf'
+    with tempfile.TemporaryDirectory(prefix = 'fzf.') as dirname:
+        outname = os.path.join(dirname, 'output.txt')
+        if isinstance(input, list):
+            inname = os.path.join(dirname, 'input.txt')
+            with open(inname, 'wb') as fp:
+                content = '\n'.join([ str(n) for n in input ])
+                fp.write(content.encode('utf-8'))
+            cmd = '%s %s < "%s" > "%s"'%(fzf, args, inname, outname)
+        elif isinstance(input, str):
+            cmd = '%s | %s %s > "%s"'%(input, fzf, args, outname)
+        code = os.system(cmd)
+        if os.path.exists(outname):
+            with open(outname, 'rb') as fp:
+                output = fp.read()
+    if output is not None:
+        output = output.decode('utf-8')
+    if code != 0:
+        return None
+    return output
+
+
+#----------------------------------------------------------------------
+# write application level log
+#----------------------------------------------------------------------
+def mlog(*args):
+    import sys, codecs, os, time
+    now = time.strftime('%Y-%m-%d %H:%M:%S')
+    part = [ str(n) for n in args ]
+    text = u' '.join(part)
+    logfile = sys.modules[__name__].__dict__.get('_mlog_file', None)
+    encoding = sys.modules[__name__].__dict__.get('_mlog_encoding', 'utf-8')
+    stdout = sys.modules[__name__].__dict__.get('_mlog_stdout', True)
+    if logfile is None:
+        name = os.path.abspath(sys.argv[0])
+        name = os.path.splitext(name)[0] + '.log'
+        logfile = codecs.open(name, 'a', encoding = encoding, errors = 'ignore')
+        sys.modules[__name__]._mlog_file = logfile
+    content = '[%s] %s'%(now, text)
+    if logfile:
+        logfile.write(content + '\r\n')
+        logfile.flush()
+    sys.stdout.write(content + '\n')
+    return 0
+
+
+#----------------------------------------------------------------------
 # testing case
 #----------------------------------------------------------------------
 if __name__ == '__main__':
@@ -1609,6 +1729,7 @@ if __name__ == '__main__':
         for k, v in headers:
             print('%s: %s'%(k, v))
         print(web.IsFastCGI())
+        print(code)
         return 0
     def test2():
         config = ConfigReader('e:/lab/casuald/conf/echoserver.ini')
