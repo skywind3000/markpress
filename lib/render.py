@@ -130,6 +130,12 @@ class HtmlRender (object):
                     if name in ENGINES:
                         engine = name
                         break
+                elif cls.startswith('language-cmd-') and SCRIPT_ENABLE:
+                    name = str(cls[9:]).strip()
+                    mode, _, _ = name[4:].partition('-')
+                    if mode.strip() in ('text', 'html', 'png', 'jpeg'):
+                        engine = name
+                        break
             if engine is None:
                 continue
             # print('engine:', engine)
@@ -145,6 +151,8 @@ class HtmlRender (object):
         mode, _, script = engine[4:].strip().partition('-')
         mode = mode.strip()
         binary = (mode in ('png', 'jpeg'))
+        # print('engine="%s", mode="%s", script="%s"'%(engine, mode, script))
+        # print('text', text)
         try:
             output = script_eval(script.strip(), text, binary)
             if mode == 'text':
