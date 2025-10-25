@@ -125,8 +125,14 @@ class HtmlRender (object):
                     if mode.strip() in ('text', 'html', 'png', 'jpeg'):
                         engine = name
                         break
+                elif cls.startswith('language-viz-'):
+                    name = cls[13:]
+                    if name in ENGINES:
+                        engine = name
+                        break
             if engine is None:
                 continue
+            # print('engine:', engine)
             if engine.startswith('cmd-'):
                 tag = self._cmd_replace(engine, code.text)
             else:
@@ -181,7 +187,7 @@ class HtmlRender (object):
             svg = soup.svg.extract()
             p = self._soup.new_tag('pre')
             p.insert(0, svg)
-            p['style'] = 'background:none; border:0px;'
+            p['style'] = 'background:none; border:0px; padding: 0.1em;'
             # print(svg)
         except:
             text = ascmini.callstack()
